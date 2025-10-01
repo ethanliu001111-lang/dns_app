@@ -21,37 +21,37 @@ def create_dns_response(message_dict):
         lines.append(f"{key}={value}")
     return "\n".join(lines) + "\n"
 
-# 在AS的store_log函数中，修正文件写入逻辑
+
 def store_log(message_dict):
     try:
-        # 检查必要字段
+        
         required_fields = ['TYPE', 'NAME', 'VALUE', 'TTL']
         for field in required_fields:
             if field not in message_dict:
                 print(f"Missing field in DNS registration: {field}")
                 return False
         
-        # 写入DNS记录（修正后的逻辑）
+        
         with open(storage, 'a+', encoding='utf-8') as file:
             file.seek(0)
             content = file.read()
             
-            # 检查是否已存在相同记录
+            
             record_exists = False
             if content:
                 records = content.split('\n\n')
                 for i, record in enumerate(records):
                     if message_dict['NAME'] in record and message_dict['TYPE'] in record:
-                        # 更新现有记录
+                        
                         records[i] = create_dns_response(message_dict).strip()
                         record_exists = True
                         break
             
             if not record_exists:
-                # 添加新记录
+               
                 file.write(create_dns_response(message_dict))
             else:
-                # 重写全部记录（更新模式）
+
                 file.seek(0)
                 file.truncate()
                 file.write('\n\n'.join(records))
